@@ -15,7 +15,6 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -49,7 +48,6 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -111,7 +109,7 @@ fun ImageMosaicTool(
         pendingSaveBitmap = null
         if (uri != null && bitmap != null) {
             scope.launch {
-                val ok = saveMosaicToUri(context, bitmap, uri)
+                val ok = saveBitmapToUri(context, bitmap, uri)
                 saving = false
                 Toast.makeText(
                     context,
@@ -162,7 +160,11 @@ fun ImageMosaicTool(
         saving = true
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             scope.launch {
-                val ok = saveMosaicToGallery(context, bitmap)
+                val ok = saveBitmapToGallery(
+                    context = context,
+                    bitmap = bitmap,
+                    fileName = imageFileName("mosaic"),
+                )
                 saving = false
                 Toast.makeText(
                     context,
@@ -172,7 +174,7 @@ fun ImageMosaicTool(
             }
         } else {
             pendingSaveBitmap = bitmap
-            createDocument.launch(mosaicFileName())
+            createDocument.launch(imageFileName("mosaic"))
         }
     }
 
@@ -274,12 +276,12 @@ fun ImageMosaicTool(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                MosaicSecondaryButton(
+                ImageToolSecondaryButton(
                     text = "重新选择",
                     onClick = { openPicker() },
                 )
                 Spacer(Modifier.weight(1f))
-                MosaicPrimaryButton(
+                ImageToolPrimaryButton(
                     text = "保存图片",
                     enabled = mosaicBitmap != null && !loading,
                     loading = saving,
@@ -377,7 +379,7 @@ private fun EmptyMosaicState(
             fontSize = 12.sp,
         )
         Spacer(Modifier.height(18.dp))
-        MosaicPrimaryButton(
+        ImageToolPrimaryButton(
             text = "选择图片",
             enabled = !loading,
             loading = loading,
@@ -461,121 +463,4 @@ private fun MosaicSlider(
             )
         },
     )
-}
-
-@Composable
-private fun MosaicPrimaryButton(
-    text: String,
-    enabled: Boolean = true,
-    loading: Boolean = false,
-    onClick: () -> Unit,
-) {
-    val interaction = remember { MutableInteractionSource() }
-    val pressed by interaction.collectIsPressedAsState()
-    val scale by animateFloatAsState(
-        targetValue = if (pressed) 0.97f else 1f,
-        animationSpec = tween(160, easing = EmphasizedEasing),
-        label = "mosaicPrimaryPress",
-    )
-    val shape = RoundedCornerShape(14.dp)
-
-    Row(
-        modifier = Modifier
-            .height(46.dp)
-            .graphicsLayer {
-                scaleX = scale
-                scaleY = scale
-                alpha = if (enabled || loading) 1f else 0.45f
-            }
-            .shadow(
-                8.dp,
-                shape,
-                clip = false,
-                ambientColor = AppleBlue.copy(alpha = 0.60f),
-                spotColor = AppleBlue.copy(alpha = 0.60f),
-            )
-            .clip(shape)
-            .background(
-                Brush.linearGradient(
-                    0f to AppleBlueLight,
-                    1f to AppleBlue,
-                ),
-            )
-            .border(1.dp, Color.White.copy(alpha = 0.55f), shape)
-            .clickable(
-                interactionSource = interaction,
-                indication = null,
-                enabled = enabled && !loading,
-                onClick = onClick,
-            )
-            .padding(horizontal = 18.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Center,
-    ) {
-        if (loading) {
-            CircularProgressIndicator(
-                modifier = Modifier.size(16.dp),
-                color = Color.White,
-                strokeWidth = 2.dp,
-            )
-            Spacer(Modifier.width(8.dp))
-        }
-        Text(
-            text = text,
-            color = Color.White,
-            fontSize = 14.sp,
-            fontWeight = FontWeight.SemiBold,
-            letterSpacing = (-0.2).sp,
-        )
-    }
-}
-
-@Composable
-private fun MosaicSecondaryButton(
-    text: String,
-    onClick: () -> Unit,
-) {
-    val interaction = remember { MutableInteractionSource() }
-    val pressed by interaction.collectIsPressedAsState()
-    val scale by animateFloatAsState(
-        targetValue = if (pressed) 0.96f else 1f,
-        animationSpec = tween(160, easing = EmphasizedEasing),
-        label = "mosaicSecondaryPress",
-    )
-    val shape = RoundedCornerShape(14.dp)
-
-    Row(
-        modifier = Modifier
-            .height(40.dp)
-            .graphicsLayer {
-                scaleX = scale
-                scaleY = scale
-            }
-            .shadow(
-                3.dp,
-                shape,
-                clip = false,
-                ambientColor = Color(0x33323C6E),
-                spotColor = Color(0x33323C6E),
-            )
-            .clip(shape)
-            .background(Color.White.copy(alpha = 0.80f))
-            .border(1.dp, Color.White.copy(alpha = 0.92f), shape)
-            .clickable(
-                interactionSource = interaction,
-                indication = null,
-                onClick = onClick,
-            )
-            .padding(horizontal = 14.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Center,
-    ) {
-        Text(
-            text = text,
-            color = AppleBlue,
-            fontSize = 13.sp,
-            fontWeight = FontWeight.SemiBold,
-            letterSpacing = (-0.2).sp,
-        )
-    }
 }

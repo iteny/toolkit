@@ -62,7 +62,14 @@ import com.example.toolkit.ui.theme.AppleBlue
 import com.example.toolkit.ui.theme.Ink
 import com.example.toolkit.ui.theme.Ink3
 import com.example.toolkit.ui.theme.SoftShadow
+import com.example.toolkit.ui.tools.GifCompressTool
+import com.example.toolkit.ui.tools.GifFrameTool
+import com.example.toolkit.ui.tools.GifSplitTool
+import com.example.toolkit.ui.tools.ImageBase64Tool
+import com.example.toolkit.ui.tools.ImageCropTool
 import com.example.toolkit.ui.tools.ImageMosaicTool
+import com.example.toolkit.ui.tools.InvertImageTool
+import com.example.toolkit.ui.tools.PngBackgroundTool
 import kotlinx.coroutines.launch
 
 /** Right-to-left tool page, mirroring the prototype's sliding `.detail`. */
@@ -117,6 +124,41 @@ fun DetailOverlay(
                 ) {
                     if (visibleTool.name == "图片马赛克") {
                         ImageMosaicTool(
+                            tool = visibleTool,
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                    } else if (visibleTool.name == "图片裁剪") {
+                        ImageCropTool(
+                            tool = visibleTool,
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                    } else if (visibleTool.name == "图片转Base64") {
+                        ImageBase64Tool(
+                            tool = visibleTool,
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                    } else if (visibleTool.name == "GIF帧修改") {
+                        GifFrameTool(
+                            tool = visibleTool,
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                    } else if (visibleTool.name == "GIF帧拆分") {
+                        GifSplitTool(
+                            tool = visibleTool,
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                    } else if (visibleTool.name == "GIF压缩") {
+                        GifCompressTool(
+                            tool = visibleTool,
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                    } else if (visibleTool.name == "PNG背景色") {
+                        PngBackgroundTool(
+                            tool = visibleTool,
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                    } else if (visibleTool.name == "图片反相/反色") {
+                        InvertImageTool(
                             tool = visibleTool,
                             modifier = Modifier.fillMaxWidth(),
                         )

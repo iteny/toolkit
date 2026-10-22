@@ -168,21 +168,22 @@ internal fun buildMosaic(source: Bitmap, blockSize: Int): Bitmap {
     return result
 }
 
-internal fun mosaicFileName(): String {
+internal fun imageFileName(prefix: String): String {
     val stamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
-    return "mosaic_$stamp.jpg"
+    return "${prefix}_$stamp.jpg"
 }
 
 /** One-tap save into Pictures/河马工具箱 (Android 10+). */
-internal suspend fun saveMosaicToGallery(
+internal suspend fun saveBitmapToGallery(
     context: Context,
     bitmap: Bitmap,
+    fileName: String,
 ): Boolean = withContext(Dispatchers.IO) {
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return@withContext false
 
     val resolver = context.contentResolver
     val values = ContentValues().apply {
-        put(MediaStore.Images.Media.DISPLAY_NAME, mosaicFileName())
+        put(MediaStore.Images.Media.DISPLAY_NAME, fileName)
         put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
         put(
             MediaStore.Images.Media.RELATIVE_PATH,
@@ -213,7 +214,7 @@ internal suspend fun saveMosaicToGallery(
 }
 
 /** SAF fallback for Android 9 and lower. */
-internal suspend fun saveMosaicToUri(
+internal suspend fun saveBitmapToUri(
     context: Context,
     bitmap: Bitmap,
     uri: Uri,
@@ -221,6 +222,103 @@ internal suspend fun saveMosaicToUri(
     runCatching {
         context.contentResolver.openOutputStream(uri)?.use { output ->
             bitmap.compress(Bitmap.CompressFormat.JPEG, 95, output)
+        } ?: false
+    }.getOrDefault(false)
+}
+
+/** One-tap save of raw bytes (e.g. GIF) into Pictures/河马工具箱. */
+internal suspend fun saveBytesToGallery(
+    context: Context,
+    bytes: ByteArray,
+    fileName: String,
+    mimeType: String,
+): Boolean = withContext(Dispatchers.IO) {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return@withContext false
+
+    val resolver = context.contentResolver
+    val values = ContentValues().apply {
+        put(MediaStore.Images.Media.DISPLAY_NAME, fileName)
+        put(MediaStore.Images.Media.MIME_TYPE, mimeType)
+        put(
+            MediaStore.Images.Media.RELATIVE_PATH,
+            "${Environment.DIRECTORY_PICTURES}/河马工具箱",
+        )
+        put(MediaStore.Images.Media.IS_PENDING, 1)
+    }
+
+    var uri: Uri? = null
+    try {
+        uri = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)
+            ?: return@withContext false
+        resolver.openOutputStream(uri)?.use { it.write(bytes) }
+            ?: return@withContext false
+        values.clear()
+        values.put(MediaStore.Images.Media.IS_PENDING, 0)
+        resolver.update(uri, values, null, null)
+        true
+    } catch (_: Throwable) {
+        uri?.let { runCatching { resolver.delete(it, null, null) } }
+        false
+    }
+}
+
+internal suspend fun saveBytesToUri(
+    context: Context,
+    bytes: ByteArray,
+    uri: Uri,
+): Boolean = withContext(Dispatchers.IO) {
+    runCatching {
+        context.contentResolver.openOutputStream(uri)?.use { it.write(bytes) } != null
+    }.getOrDefault(false)
+}
+
+internal suspend fun savePngToGallery(
+    context: Context,
+    bitmap: Bitmap,
+    fileName: String,
+): Boolean = withContext(Dispatchers.IO) {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return@withContext false
+
+    val resolver = context.contentResolver
+    val values = ContentValues().apply {
+        put(MediaStore.Images.Media.DISPLAY_NAME, fileName)
+        put(MediaStore.Images.Media.MIME_TYPE, "image/png")
+        put(
+            MediaStore.Images.Media.RELATIVE_PATH,
+            "${Environment.DIRECTORY_PICTURES}/河马工具箱",
+        )
+        put(MediaStore.Images.Media.IS_PENDING, 1)
+    }
+
+    var uri: Uri? = null
+    try {
+        uri = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)
+            ?: return@withContext false
+        val written = resolver.openOutputStream(uri)?.use { output ->
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, output)
+        } ?: false
+        if (!written) {
+            resolver.delete(uri, null, null)
+            return@withContext false
+        }
+        values.clear()
+        values.put(MediaStore.Images.Media.IS_PENDING, 0)
+        resolver.update(uri, values, null, null)
+        true
+    } catch (_: Throwable) {
+        uri?.let { runCatching { resolver.delete(it, null, null) } }
+        false
+    }
+}
+
+internal suspend fun savePngToUri(
+    context: Context,
+    bitmap: Bitmap,
+    uri: Uri,
+): Boolean = withContext(Dispatchers.IO) {
+    runCatching {
+        context.contentResolver.openOutputStream(uri)?.use { output ->
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, output)
         } ?: false
     }.getOrDefault(false)
 }
