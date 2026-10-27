@@ -8,6 +8,18 @@ lifecycleRuntimeKtx = "2.11.0"
 activityCompose = "1.13.0"
 kotlin = "2.2.10"
 composeBom = "2026.02.01"
+androidsvg = "1.4"
+snakeyaml = "2.2"
+tomlj = "1.1.1"
+ffmpegKit = "8.1.7"
+smartException = "0.2.1"
+pdfboxAndroid = "2.0.27.0"
+commonsCompress = "1.27.1"
+xz = "1.10"
+junrar = "7.5.5"
+documentfile = "1.0.1"
+jxlCoder = "2.5.2"
+zip4j = "2.11.6"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -24,6 +36,18 @@ androidx-compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "u
 androidx-compose-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
 androidx-compose-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3" }
+androidsvg = { group = "com.caverock", name = "androidsvg-aar", version.ref = "androidsvg" }
+snakeyaml = { group = "org.yaml", name = "snakeyaml", version.ref = "snakeyaml" }
+tomlj = { group = "org.tomlj", name = "tomlj", version.ref = "tomlj" }
+ffmpeg-kit-full = { group = "dev.ffmpegkit-maintained", name = "ffmpeg-kit-full", version.ref = "ffmpegKit" }
+smart-exception-java = { group = "com.arthenica", name = "smart-exception-java", version.ref = "smartException" }
+pdfbox-android = { group = "com.tom-roush", name = "pdfbox-android", version.ref = "pdfboxAndroid" }
+commons-compress = { group = "org.apache.commons", name = "commons-compress", version.ref = "commonsCompress" }
+xz = { group = "org.tukaani", name = "xz", version.ref = "xz" }
+junrar = { group = "com.github.junrar", name = "junrar", version.ref = "junrar" }
+documentfile = { group = "androidx.documentfile", name = "documentfile", version.ref = "documentfile" }
+jxl-coder = { group = "io.github.awxkee", name = "jxl-coder", version.ref = "jxlCoder" }
+zip4j = { group = "net.lingala.zip4j", name = "zip4j", version.ref = "zip4j" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

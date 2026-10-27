@@ -163,13 +163,16 @@ object ToolCatalog {
         ),
         category(
             id = "more", name = "其他", color = rgb(122, 132, 150), iconKey = "catMore",
-            toolNames = listOf("随机数生成", "电报码翻译", "随机密码生成"),
+            toolNames = listOf(
+                "随机数生成", "电报码翻译", "随机密码生成", "开源许可", "隐私政策",
+            ),
         ),
     )
 
     val exclusiveTitle: String = "独家工具集"
 
     val exclusiveTools: List<ToolItem> = listOf(
+        ToolItem("文件格式转换", "convert", rgb(224, 138, 60)),
         ToolItem("批量重命名", "rename", rgb(59, 125, 216)),
         ToolItem("PDF 工具箱", "pdf", rgb(194, 94, 94)),
         ToolItem("音频剪辑", "audio", rgb(76, 143, 203)),

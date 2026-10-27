@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
@@ -49,6 +50,7 @@ import com.example.toolkit.ui.design.TopFade
 import com.example.toolkit.ui.model.AppTab
 import com.example.toolkit.ui.model.ToolCatalog
 import com.example.toolkit.ui.model.ToolItem
+import com.example.toolkit.ui.tools.IncomingShare
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -81,6 +83,15 @@ fun ToolkitApp() {
 
     // Favorites are session scoped in the prototype (no localStorage entry).
     val favoriteNames = remember { mutableStateListOf<String>() }
+
+    LaunchedEffect(IncomingShare.version) {
+        if (IncomingShare.uris.isNotEmpty()) {
+            searchOpen = false
+            loginSheetOpen = false
+            userMenuOpen = false
+            detailTool = ToolCatalog.find("文件格式转换")
+        }
+    }
 
     val selectedTab = AppTab.entries.firstOrNull { it.name == selectedTabName } ?: AppTab.Home
     val favorites = favoriteNames.mapNotNull(ToolCatalog.byName::get)

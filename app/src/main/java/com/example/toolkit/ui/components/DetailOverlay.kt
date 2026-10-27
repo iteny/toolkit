@@ -38,12 +38,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
@@ -62,6 +60,7 @@ import com.example.toolkit.ui.theme.AppleBlue
 import com.example.toolkit.ui.theme.Ink
 import com.example.toolkit.ui.theme.Ink3
 import com.example.toolkit.ui.theme.SoftShadow
+import com.example.toolkit.ui.tools.FileConvertTool
 import com.example.toolkit.ui.tools.GifCompressTool
 import com.example.toolkit.ui.tools.GifFrameTool
 import com.example.toolkit.ui.tools.GifSplitTool
@@ -69,7 +68,9 @@ import com.example.toolkit.ui.tools.ImageBase64Tool
 import com.example.toolkit.ui.tools.ImageCropTool
 import com.example.toolkit.ui.tools.ImageMosaicTool
 import com.example.toolkit.ui.tools.InvertImageTool
+import com.example.toolkit.ui.tools.LicensesTool
 import com.example.toolkit.ui.tools.PngBackgroundTool
+import com.example.toolkit.ui.tools.PrivacyTool
 import kotlinx.coroutines.launch
 
 /** Right-to-left tool page, mirroring the prototype's sliding `.detail`. */
@@ -162,6 +163,21 @@ fun DetailOverlay(
                             tool = visibleTool,
                             modifier = Modifier.fillMaxWidth(),
                         )
+                    } else if (visibleTool.name == "文件格式转换") {
+                        FileConvertTool(
+                            tool = visibleTool,
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                    } else if (visibleTool.name == "开源许可") {
+                        LicensesTool(
+                            tool = visibleTool,
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                    } else if (visibleTool.name == "隐私政策") {
+                        PrivacyTool(
+                            tool = visibleTool,
+                            modifier = Modifier.fillMaxWidth(),
+                        )
                     } else {
                         Column(
                             modifier = Modifier
@@ -208,16 +224,10 @@ fun DetailOverlay(
                 DetailTopBar(
                     title = visibleTool.name,
                     topInset = statusBarTop,
-                    onBack = onBack,
-                )
-
-                FavoriteButton(
                     isFavorite = isFavorite,
-                    color = visibleTool.color,
-                    onToggle = onToggleFavorite,
-                    modifier = Modifier
-                        .align(Alignment.BottomEnd)
-                        .padding(end = 18.dp, bottom = navigationBarBottom + 30.dp),
+                    favoriteColor = visibleTool.color,
+                    onBack = onBack,
+                    onToggleFavorite = onToggleFavorite,
                 )
             }
         }
@@ -228,7 +238,10 @@ fun DetailOverlay(
 private fun DetailTopBar(
     title: String,
     topInset: Dp,
+    isFavorite: Boolean,
+    favoriteColor: Color,
     onBack: () -> Unit,
+    onToggleFavorite: () -> Unit,
 ) {
     Row(
         modifier = Modifier
@@ -253,7 +266,11 @@ private fun DetailTopBar(
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
         )
-        Spacer(Modifier.size(34.dp))
+        TopFavoriteButton(
+            isFavorite = isFavorite,
+            color = favoriteColor,
+            onToggle = onToggleFavorite,
+        )
     }
 }
 
@@ -293,11 +310,10 @@ private fun BackButton(onClick: () -> Unit) {
 }
 
 @Composable
-private fun FavoriteButton(
+private fun TopFavoriteButton(
     isFavorite: Boolean,
     color: Color,
     onToggle: () -> Unit,
-    modifier: Modifier = Modifier,
 ) {
     val interaction = remember { MutableInteractionSource() }
     val pressed by interaction.collectIsPressedAsState()
@@ -315,8 +331,8 @@ private fun FavoriteButton(
     val scope = rememberCoroutineScope()
 
     Box(
-        modifier = modifier
-            .size(54.dp)
+        modifier = Modifier
+            .size(34.dp)
             .semantics {
                 contentDescription = if (isFavorite) "取消收藏" else "收藏"
             }
@@ -325,17 +341,8 @@ private fun FavoriteButton(
                 scaleX = value
                 scaleY = value
             }
-            .drawBehind {
-                if (isFavorite) {
-                    drawCircle(
-                        color = color.copy(alpha = 0.16f),
-                        radius = size.minDimension / 2f + 3.dp.toPx(),
-                        style = Stroke(width = 3.dp.toPx()),
-                    )
-                }
-            }
             .shadow(
-                10.dp,
+                2.dp,
                 CircleShape,
                 clip = false,
                 ambientColor = SoftShadow,
@@ -372,8 +379,8 @@ private fun FavoriteButton(
         GlyphIcon(
             key = "bookmark",
             color = iconColor,
-            modifier = Modifier.size(24.dp),
-            strokeWidth = 1.7f,
+            modifier = Modifier.size(17.dp),
+            strokeWidth = 1.8f,
             fillColor = if (isFavorite) iconColor.copy(alpha = 0.92f) else null,
         )
     }
